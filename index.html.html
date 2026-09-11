@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Centro de Control SINERCOM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-body: #f6f8fc;
+            --bg-header: #0a2540;
+            --bg-card: #ffffff;
+            --text-primary: #0a2540;
+            --text-secondary: #566c8a;
+            --text-muted: #8fa4be;
+            --border-light: #eaeff7;
+            --border-medium: #d6e1ef;
+            --accent-blue: #2563eb;
+            --accent-blue-dark: #1e40af;
+            --accent-green: #059669;
+            --accent-purple: #7c3aed;
+            --accent-cyan: #0891b2;
+            --accent-amber: #d97706;
+            --accent-rose: #e11d48;
+            --accent-sharepoint: #0078d4;
+            --shadow-xs: 0 1px 2px rgba(10, 37, 64, 0.04);
+            --shadow-sm: 0 1px 3px rgba(10, 37, 64, 0.06), 0 1px 2px rgba(10, 37, 64, 0.03);
+            --shadow-md: 0 4px 12px rgba(10, 37, 64, 0.06), 0 2px 4px rgba(10, 37, 64, 0.04);
+            --shadow-lg: 0 12px 28px rgba(10, 37, 64, 0.09), 0 4px 10px rgba(10, 37, 64, 0.05);
+            --shadow-xl: 0 20px 40px rgba(10, 37, 64, 0.12), 0 8px 16px rgba(10, 37, 64, 0.06);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-body);
+            background-image:
+                radial-gradient(circle at 15% 0%, rgba(37, 99, 235, 0.04) 0%, transparent 50%),
+                radial-gradient(circle at 85% 100%, rgba(124, 58, 237, 0.04) 0%, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== HEADER ===== */
+        .app-header {
+            background: linear-gradient(135deg, #0a2540 0%, #14385f 50%, #1a3a5c 100%);
+            padding: 20px 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 8px 32px rgba(10, 37, 64, 0.18);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .app-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #2563eb 0%, #7c3aed 50%, #0891b2 100%);
+        }
+        .app-header .logo-area { display: flex; align-items: center; gap: 18px; }
+        .app-header .logo-area img {
+            height: 46px; width: auto; background: #ffffff;
+            padding: 7px 14px; border-radius: 14px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+        .app-header .logo-area h1 {
+            color: #ffffff; font-size: 1.4rem;
+            font-weight: 800; letter-spacing: -0.025em;
+            line-height: 1.1;
+        }
+        .app-header .logo-area h1 span { color: #7cb3f0; font-weight: 500; }
+        .app-header .logo-area .subtitle {
+            display: block; font-size: 0.7rem; color: #8fb3d9;
+            font-weight: 600; letter-spacing: 0.12em;
+            text-transform: uppercase; margin-top: 4px;
+        }
+        .app-header .header-stats {
+            display: flex; gap: 10px; font-size: 0.82rem;
+        }
+        .app-header .header-stats .stat-item {
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #c8def2;
+            padding: 8px 18px; border-radius: 100px;
+            font-weight: 600; transition: all 0.25s ease; cursor: default;
+            backdrop-filter: blur(8px);
+        }
+        .app-header .header-stats .stat-item:hover {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.24);
+            transform: translateY(-1px);
+        }
+        .app-header .header-stats .stat-item.clickable { cursor: pointer; }
+
+        /* ===== MAIN ===== */
+        .main-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 36px 44px 80px;
+        }
+
+        /* ===== BUSCADOR ===== */
+        .search-section {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 10px 10px 10px 26px;
+            margin-bottom: 36px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .search-section:focus-within {
+            box-shadow: 0 12px 32px rgba(37, 99, 235, 0.12);
+            border-color: #b8d0f0;
+            transform: translateY(-2px);
+        }
+        .search-section .search-icon {
+            font-size: 1.15rem; opacity: 0.45;
+            transition: opacity 0.2s ease;
+        }
+        .search-section:focus-within .search-icon { opacity: 0.8; }
+        .search-section input {
+            flex: 1; padding: 15px 8px; border: none;
+            font-size: 0.95rem; font-family: inherit; outline: none;
+            min-width: 200px; background: transparent;
+            color: var(--text-primary); font-weight: 500;
+        }
+        .search-section input::placeholder { color: var(--text-muted); font-weight: 400; }
+        .search-section .badge-total {
+            color: var(--text-secondary); font-weight: 600; font-size: 0.8rem;
+            white-space: nowrap; background: linear-gradient(135deg, #f0f5fc 0%, #e8f0fa 100%);
+            padding: 11px 20px; border-radius: 14px; letter-spacing: -0.01em;
+            border: 1px solid #e0e9f5;
+        }
+        .search-section .badge-total strong {
+            color: var(--accent-blue); font-size: 1.05rem;
+            font-weight: 700; font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ===== CATEGORÍA ===== */
+        .category-section { margin-bottom: 40px; }
+        .category-section .cat-header {
+            display: flex; align-items: center; gap: 14px;
+            margin-bottom: 24px; padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-light);
+        }
+        .category-section .cat-header h2 {
+            font-size: 1.3rem; color: var(--text-primary);
+            font-weight: 800; letter-spacing: -0.025em;
+        }
+        .category-section .cat-header .count {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff; padding: 4px 16px; border-radius: 100px;
+            font-size: 0.72rem; font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.03em;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+        }
+
+        /* ===== GRID MASONRY (COLUMNAS) ===== */
+        .card-grid {
+            column-count: 3;
+            column-gap: 22px;
+            column-fill: balance;
+        }
+
+        /* ===== TARJETAS ===== */
+        .tool-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 26px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column;
+            position: relative; overflow: hidden;
+
+            /* Clave para masonry */
+            break-inside: avoid;
+            page-break-inside: avoid;
+            -webkit-column-break-inside: avoid;
+            display: inline-flex;
+            width: 100%;
+            margin-bottom: 22px;
+            vertical-align: top;
+        }
+        .tool-card::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #2563eb 0%, #7c3aed 50%, #0891b2 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .tool-card:hover {
+            border-color: #c9dcf3;
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+        }
+        .tool-card:hover::before { opacity: 1; }
+
+        /* Card destacada (Gestión Operativa) */
+        .tool-card.featured {
+            background: linear-gradient(160deg, #fbfdff 0%, #f4f9ff 100%);
+            border-color: #c9dcf3;
+        }
+        .tool-card.featured::before { opacity: 1; }
+
+        /* Header de la tarjeta */
+        .tool-card .card-header-row {
+            display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;
+        }
+        .tool-card .card-icon-wrap {
+            flex-shrink: 0; width: 52px; height: 52px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.55rem;
+            background: linear-gradient(135deg, #f0f7ff 0%, #e0eefe 100%);
+            border: 1px solid #d4e6fd;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.08), inset 0 1px 0 rgba(255,255,255,0.8);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+        .tool-card:hover .card-icon-wrap {
+            transform: scale(1.1) rotate(-4deg);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.18), inset 0 1px 0 rgba(255,255,255,0.9);
+        }
+        .tool-card .card-title-wrap { flex: 1; min-width: 0; }
+        .tool-card .card-number {
+            display: inline-flex;
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.66rem; font-weight: 700;
+            color: var(--accent-blue);
+            background: linear-gradient(135deg, #eef4ff 0%, #dde9fe 100%);
+            padding: 3px 9px; border-radius: 7px;
+            margin-bottom: 6px; letter-spacing: 0.06em;
+            border: 1px solid #d8e5fb;
+        }
+        .tool-card .card-title {
+            font-weight: 800; font-size: 1.05rem;
+            color: var(--text-primary);
+            letter-spacing: -0.02em; line-height: 1.3;
+        }
+        .tool-card .card-desc {
+            font-size: 0.87rem; color: var(--text-secondary);
+            line-height: 1.7; margin-bottom: 20px;
+            font-weight: 450; letter-spacing: -0.005em;
+        }
+        .tool-card .card-desc p { margin-bottom: 8px; }
+        .tool-card .card-desc p:last-child { margin-bottom: 0; }
+        .tool-card .card-desc strong { color: var(--text-primary); font-weight: 700; }
+
+        /* Sub-secciones */
+        .tool-card .card-desc .sub-section {
+            margin-top: 12px;
+            padding: 16px;
+            border-radius: 14px;
+            background: #fafcfe;
+            border: 1px solid #edf3fa;
+            font-size: 0.84rem;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        .tool-card .card-desc .sub-section::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 12px; bottom: 12px;
+            width: 3px;
+            background: linear-gradient(180deg, #2563eb 0%, #7c3aed 100%);
+            border-radius: 0 3px 3px 0;
+            opacity: 0.7;
+        }
+        .tool-card .card-desc .sub-section:hover {
+            background: #f5f9ff;
+            border-color: #dbe7f5;
+            transform: translateX(2px);
+        }
+        .tool-card .card-desc .sub-section strong {
+            color: var(--text-primary);
+            display: flex; align-items: center; gap: 6px;
+            margin-bottom: 6px;
+            font-size: 0.88rem; font-weight: 700;
+            letter-spacing: -0.015em;
+        }
+        .tool-card .card-desc .sub-section p {
+            color: var(--text-secondary); font-size: 0.8rem;
+            margin-bottom: 12px; line-height: 1.6;
+        }
+        .tool-card .card-desc .sub-section .sub-actions {
+            display: flex; gap: 8px; flex-wrap: wrap;
+        }
+
+        /* Lista de procedimientos */
+        .procedure-list {
+            margin-top: 10px; padding-left: 22px; font-size: 0.8rem;
+            color: var(--text-secondary); display: none; line-height: 1.8;
+        }
+        .procedure-list.open { display: block; }
+        .procedure-list li { margin-bottom: 3px; }
+        .procedure-list li::marker { color: var(--accent-blue); font-weight: 700; }
+
+        .btn-toggle {
+            background: none; border: none;
+            color: var(--accent-blue);
+            cursor: pointer; font-size: 0.78rem; font-weight: 700;
+            padding: 4px 0; font-family: inherit;
+            transition: all 0.15s ease;
+            display: inline-flex; align-items: center; gap: 4px;
+            letter-spacing: -0.01em;
+        }
+        .btn-toggle:hover {
+            color: var(--accent-blue-dark);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        /* Tags */
+        .tool-card .card-tags {
+            display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 18px;
+        }
+        .tool-card .card-tags .tag {
+            font-size: 0.62rem; font-weight: 700;
+            text-transform: uppercase;
+            padding: 5px 12px; border-radius: 100px;
+            letter-spacing: 0.07em;
+            border: 1px solid transparent;
+            transition: transform 0.2s ease;
+        }
+        .tool-card:hover .card-tags .tag { transform: translateY(-1px); }
+        .tag-herramienta { background: linear-gradient(135deg, #ecfeff 0%, #e0f7fa 100%); color: #0e7490; border-color: #cffafe; }
+        .tag-documento { background: linear-gradient(135deg, #fffbeb 0%, #fef5d5 100%); color: #b45309; border-color: #fef3c7; }
+        .tag-sharepoint { background: linear-gradient(135deg, #eff6ff 0%, #e0edff 100%); color: #0078d4; border-color: #dbeafe; }
+        .tag-externo { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); color: #6d28d9; border-color: #ede9fe; }
+
+        /* Acciones */
+        .tool-card .card-actions {
+            display: flex; gap: 9px; margin-top: auto;
+            padding-top: 18px;
+            border-top: 1px solid var(--border-light);
+            flex-wrap: wrap;
+        }
+        .btn-link {
+            display: inline-flex; align-items: center; gap: 7px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white; border: none;
+            padding: 10px 20px; border-radius: 11px;
+            font-size: 0.79rem; font-weight: 700; cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            font-family: inherit; letter-spacing: -0.01em;
+            box-shadow: 0 3px 8px rgba(37, 99, 235, 0.22), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .btn-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.32), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        .btn-link.outline {
+            background: #ffffff; color: var(--accent-blue);
+            border: 1.5px solid #c9dcf3; box-shadow: var(--shadow-xs);
+        }
+        .btn-link.outline:hover {
+            background: #f0f7ff; border-color: var(--accent-blue);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.12);
+        }
+        .btn-link.success {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 3px 8px rgba(5, 150, 105, 0.22), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .btn-link.success:hover { box-shadow: 0 8px 20px rgba(5, 150, 105, 0.32); }
+        .btn-link.purple {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            box-shadow: 0 3px 8px rgba(124, 58, 237, 0.22), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .btn-link.purple:hover { box-shadow: 0 8px 20px rgba(124, 58, 237, 0.32); }
+        .btn-link.sharepoint {
+            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+            box-shadow: 0 3px 8px rgba(0, 120, 212, 0.22), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .btn-link.sharepoint:hover { box-shadow: 0 8px 20px rgba(0, 120, 212, 0.32); }
+        .btn-link.warning {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            box-shadow: 0 3px 8px rgba(217, 119, 6, 0.22), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .btn-link.warning:hover { box-shadow: 0 8px 20px rgba(217, 119, 6, 0.32); }
+        .btn-link.danger {
+            background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+            box-shadow: 0 3px 8px rgba(225, 29, 72, 0.22), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .btn-link.danger:hover { box-shadow: 0 8px 20px rgba(225, 29, 72, 0.32); }
+
+        /* Botones mini */
+        .btn-mini {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: #ffffff; color: var(--accent-blue);
+            border: 1.5px solid #d4e3f5;
+            padding: 7px 15px;
+            border-radius: 9px;
+            font-size: 0.74rem; font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit; letter-spacing: -0.01em;
+            box-shadow: var(--shadow-xs);
+        }
+        .btn-mini:hover {
+            background: #f0f7ff; border-color: var(--accent-blue);
+            color: var(--accent-blue-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+        }
+        .btn-mini.sharepoint {
+            color: #0078d4; border-color: #dbeafe;
+        }
+        .btn-mini.sharepoint:hover {
+            background: #eff6ff; border-color: #0078d4;
+            color: #005a9e;
+        }
+
+        /* ===== FOOTER ===== */
+        .app-footer {
+            background: #ffffff;
+            border-top: 1px solid var(--border-light);
+            padding: 26px 44px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 40px;
+            font-weight: 500;
+        }
+        .app-footer strong { color: var(--text-primary); font-weight: 700; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1100px) {
+            .card-grid { column-count: 2; }
+        }
+        @media (max-width: 768px) {
+            .app-header { flex-direction: column; align-items: stretch; padding: 16px 20px; }
+            .app-header .header-stats { justify-content: space-around; flex-wrap: wrap; }
+            .main-container { padding: 24px 20px 50px; }
+            .search-section { padding: 8px 8px 8px 20px; }
+            .card-grid { column-count: 1; }
+            .app-footer { padding: 22px 20px; }
+        }
+        @media print {
+            .app-header, .search-section, .btn-link, .btn-toggle, .btn-mini { display: none !important; }
+            .tool-card { border: 1px solid #ccc; break-inside: avoid; page-break-inside: avoid; }
+            .procedure-list { display: block !important; }
+            body { background: white; }
+            .card-grid { column-count: 2; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="app-header">
+        <div class="logo-area">
+            <img src="https://i.imgur.com/cF2OURd.png" alt="SINERCOM" />
+            <div>
+                <h1>Centro de Control <span>SINERCOM</span></h1>
+                <span class="subtitle">Recursos y Herramientas de Gestión</span>
+            </div>
+        </div>
+        <div class="header-stats">
+            <span class="stat-item">📌 14 recursos</span>
+            <span class="stat-item clickable" onclick="window.print();">🖨️ Imprimir</span>
+        </div>
+    </header>
+
+    <!-- ===== MAIN ===== -->
+    <div class="main-container">
+
+        <!-- BUSCADOR -->
+        <div class="search-section">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="globalSearch" placeholder="Buscar recurso, documento o herramienta..." onkeyup="filterCards()" />
+            <span class="badge-total"><strong id="visibleCount">0</strong> / <span id="totalCount">0</span></span>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- CATEGORÍA ÚNICA: RECURSOS SINERCOM -->
+        <!-- ========================================================= -->
+        <div class="category-section" data-category="recursos">
+            <div class="cat-header">
+                <h2>📌 Recursos SINERCOM</h2>
+                <span class="count">14</span>
+            </div>
+            <div class="card-grid" id="grid-recursos">
+
+                <!-- 01. Gestión Operativa (PRIMER LUGAR - DESTACADA) -->
+                <div class="tool-card featured" data-search="gestión operativa tareas turno descarga combustibles arqueo caja control camión san agustín operaciones dashboard">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">⚙️</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">01</span>
+                            <div class="card-title">Gestión Operativa</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">
+                        Herramientas de control y seguimiento para las operaciones diarias.
+                        <div class="sub-section">
+                            <strong>📊 Dashboard Operativo</strong>
+                            <p>Tablero de control con indicadores y métricas de la operación diaria.</p>
+                            <div class="sub-actions">
+                                <a href="https://sinercomsantafe-my.sharepoint.com/:u:/g/personal/juan_ramayo_sinercom_ar/IQCQeM7ncjUKT6uILFiJUXgJATCk2rA_KDVjsX_rOgdLBoM?e=5Q7QhW" target="_blank" class="btn-mini sharepoint">📊 Dashboard</a>
+                            </div>
+                        </div>
+                        <div class="sub-section">
+                            <strong>✅ Gestión de tareas en turno</strong>
+                            <p>Asignación y control de tareas operativas durante cada turno.</p>
+                            <div class="sub-actions">
+                                <a href="https://sinercomsantafe-my.sharepoint.com/:u:/g/personal/juan_ramayo_sinercom_ar/IQD88jcSYMRXQK4Wa00YsTW-AVqBMKwHdBCxFcm40ss0kns?e=KpK6OU" target="_blank" class="btn-mini">✅ Tareas en Turno</a>
+                            </div>
+                        </div>
+                        <div class="sub-section">
+                            <strong>⛽ Descarga de combustibles</strong>
+                            <p>Registro y control de descargas. Incluye Planilla Camión San Agustín.</p>
+                            <div class="sub-actions">
+                                <a href="https://sinercomsantafe-my.sharepoint.com/:u:/g/personal/juan_ramayo_sinercom_ar/IQA64WdphbmuTa55IIHN0XKnAYDu8DcSw8YKHBTpsb7ZbWk?e=YhH2KO" target="_blank" class="btn-mini">⛽ Descarga de Combustibles</a>
+                            </div>
+                        </div>
+                        <div class="sub-section">
+                            <strong>💰 Arqueo de Caja</strong>
+                            <p>Control y arqueo diario de caja.</p>
+                            <div class="sub-actions">
+                                <a href="https://sinercomsantafe-my.sharepoint.com/:f:/g/personal/juan_ramayo_sinercom_ar/IgDpzl4rrzZlQZKmcPTbdWRzAe98yPsqbkgNFcjre_2wFSY?e=pYEq7A" target="_blank" class="btn-mini">💰 Arqueo de Caja</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-tags">
+                        <span class="tag tag-herramienta">Herramienta</span>
+                        <span class="tag tag-sharepoint">SharePoint</span>
+                    </div>
+                </div>
+
+                <!-- 02. Naaloo -->
+                <div class="tool-card" data-search="naaloo app fichaje turnos comunicados asistencia">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">📱</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">02</span>
+                            <div class="card-title">Naaloo</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">Plataforma de gestión de personal: fichaje digital, asignación de turnos, comunicación interna y administración de empleados.</div>
+                    <div class="card-tags">
+                        <span class="tag tag-herramienta">Herramienta</span>
+                        <span class="tag tag-externo">Externo</span>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://app.naaloo.com/admin/comunicados" target="_blank" class="btn-link">🌐 Ir a Naaloo</a>
+                    </div>
+                </div>
+
+                <!-- 03. Horarios -->
+                <div class="tool-card" data-search="horarios turnos gestión planificación rotación">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">🕐</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">03</span>
+                            <div class="card-title">Horarios</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">Gestión y visualización de horarios de trabajo, turnos y rotación del personal.</div>
+                    <div class="card-tags">
+                        <span class="tag tag-herramienta">Herramienta</span>
+                        <span class="tag tag-sharepoint">SharePoint</span>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://sinercomsantafe-my.sharepoint.com/:f:/g/personal/juan_ramayo_sinercom_ar/IgA_eIlOhK2HRYXUMHdLotLKAQQR79fyuo-ZvIrSvmbnako?e=6s6NHf" target="_blank" class="btn-link sharepoint">📁 Horarios</a>
+                        <a href="https://sinercomsantafe-my.sharepoint.com/:u:/g/personal/juan_ramayo_sinercom_ar/IQBo2A_rhrEhTqu5h2tYq4SiAZa5RkxLsRdl-LFvb2Pcac8?e=hy3HV3" target="_blank" class="btn-link outline">🤖 HTML</a>
+                    </div>
+                </div>
+
+                <!-- 04. Base de Postulantes -->
+                <div class="tool-card" data-search="postulantes candidatos formulario reclutamiento entrevista vak disk perfil psicologico cv">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">👥</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">04</span>
+                            <div class="card-title">Base de Postulantes</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">
+                        Formulario online para postulaciones y gestión de la base de datos de talento.
+                        <div class="sub-section">
+                            <strong>📋 Formato de Entrevista · VAK / DISK</strong>
+                            <p>Guía de entrevista estándar con perfiles VAK y DISK.</p>
+                            <div class="sub-actions">
+                                <a href="Formato%20Entrevista%20VAK%20DISK.docx" download class="btn-mini">⬇️ Descargar formato</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-tags">
+                        <span class="tag tag-herramienta">Herramienta</span>
+                        <span class="tag tag-externo">Externo</span>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://docs.google.com/forms/d/1AeCnDK0FaVAnYPywz7VqWJRP3r9l5DeliDKmy8CssKc/edit" target="_blank" class="btn-link">📝 Base de CVs</a>
+                    </div>
+                </div>
+
+                <!-- 05. Datos para el Alta -->
+                <div class="tool-card" data-search="alta empleado ingreso contrato seguro vida formulario datos">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">📝</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">05</span>
+                            <div class="card-title">Datos para el Alta</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">Formulario de ingreso, declaración de domicilio y contacto de emergencia, junto con el <strong>Contrato Individual</strong> y <strong>Seguro de Vida</strong>.</div>
+                    <div class="card-tags">
+                        <span class="tag tag-herramienta">Herramienta</span>
+                        <span class="tag tag-externo">Externo</span>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://forms.cloud.microsoft/r/pzbKheKAwE" target="_blank" class="btn-link warning">A-Formulario</a>
+                        <a href="file:///C:/Users/Usuario/Desktop/INGRESO/CONTRATO%20INDIVIDUAL%20DE%20TRABAJO%20CON%20PER%C3%8DODO%20DE%20PRUEBA%20(2).html" target="_blank" class="btn-link">B-Contrato</a>
+                        <a href="INGRESO/seguro%20de%20Vida%20OBL.pdf" target="_blank" class="btn-link danger">C-Seguro</a>
+                    </div>
+                </div>
+
+                <!-- 06. Apertura de Cuentas -->
+                <div class="tool-card" data-search="apertura cuentas bancarias personal altas nuevos empleados cbu">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">🏦</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">06</span>
+                            <div class="card-title">Apertura de Cuentas</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">Registro y seguimiento de apertura de cuentas bancarias para el personal.</div>
+                    <div class="card-tags">
+                        <span class="tag tag-herramienta">Herramienta</span>
+                        <span class="tag tag-sharepoint">SharePoint</span>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://sinercomsantafe-my.sharepoint.com/:x:/g/personal/juan_ramayo_sinercom_ar/IQATvkp_j1VDTJ9vy7GaGbbzARYIDAIPl4GbcqOBjLoPjQM?e=yMaFvY" target="_blank" class="btn-link sharepoint">🏦 Apertura de Cuentas</a>
+                    </div>
+                </div>
+
+                <!-- 07. Stock de Ropa -->
+                <div class="tool-card" data-search="stock ropa uniformes inventario vestimenta equipamiento">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">👕</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">07</span>
+                            <div class="card-title">Stock de Ropa</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">Control y gestión de inventario de uniformes y elementos de vestimenta del personal.</div>
+                    <div class="card-tags">
+                        <span class="tag tag-herramienta">Herramienta</span>
+                        <span class="tag tag-sharepoint">SharePoint</span>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://sinercomsantafe-my.sharepoint.com/:u:/g/personal/juan_ramayo_sinercom_ar/IQCAb1KAh3U3RpM-_4YoKOIAAQznrL4YwN9NZanzh2OtKPM?e=21uMOl" target="_blank" class="btn-link sharepoint">👕 Stock de Ropa</a>
+                    </div>
+                </div>
+
+                <!-- 08. Axion Campus -->
+                <div class="tool-card" data-search="axion campus capacitación formación aprendizaje plataforma cursos">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">🎓</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">08</span>
+                            <div class="card-title">Axion Campus</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">Plataforma de capacitación y formación continua para el personal de SINERCOM.</div>
+                    <div class="card-tags">
+                        <span class="tag tag-herramienta">Herramienta</span>
+                        <span class="tag tag-externo">Externo</span>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.axioncampus.com/totara/dashboard/index.php" target="_blank" class="btn-link">🌐 Ir a Axion Campus</a>
+                    </div>
+                </div>
+
+                <!-- 09. Novedades de Liquidación -->
+                <div class="tool-card" data-search="novedades liquidación comunicados internos actualizaciones normativas anuncios sueldos cálculo choferes viáticos adicionales">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">📢</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">09</span>
+                            <div class="card-title">Novedades de Liquidación</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">
+                        Comunicados internos, actualizaciones normativas y novedades relacionadas con la liquidación de sueldos.
+                        <div class="sub-section">
+                            <strong>🧮 Cálculo Choferes</strong>
+                            <p>Herramienta para el cálculo de liquidaciones, viáticos y adicionales del personal conductor.</p>
+                            <div class="sub-actions">
+                                <a href="https://sinercomsantafe-my.sharepoint.com/:x:/g/personal/juan_ramayo_sinercom_ar/IQB77tXHAUe7R7jgCMAm54u5AYvwYlY4oelW1l2IcUArTpc?e=Jgz00K" target="_blank" class="btn-mini sharepoint">🧮 Cálculo Choferes</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-tags">
+                        <span class="tag tag-herramienta">Herramienta</span>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://sinercomsantafe-my.sharepoint.com/:x:/g/personal/juan_ramayo_sinercom_ar/IQBxdNzzbj-tQJzZSkQn70RrARQIDK3kjZkrlFHcKDEgnkM?e=ZulDAX" target="_blank" class="btn-link sharepoint">📢 Novedades de Liquidación</a>
+                    </div>
+                </div>
+
+                <!-- 10. Manuales SINERCOM -->
+                <div class="tool-card" data-search="manual operador transporte estacion playa shop empleado logistica procedimientos recursos humanos rrhh assal seguridad alimentaria calidad">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">📚</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">10</span>
+                            <div class="card-title">Manuales SINERCOM</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">
+                        Biblioteca centralizada de manuales, procedimientos y normativas de SINERCOM.
+                        <div class="sub-section">
+                            <strong>🚛 Manual del Operador de Transporte</strong>
+                            <p>Procedimientos de seguridad y operación para el transporte de combustibles.</p>
+                            <div class="sub-actions">
+                                <a href="Manual%20Operador%20Transporte%20SINERCOM.pdf" target="_blank" class="btn-mini">🚛 Operador de Transporte</a>
+                            </div>
+                        </div>
+                        <div class="sub-section">
+                            <strong>🏪 Manual de Empleado de Estaciones</strong>
+                            <p>Protocolos de atención, vestimenta y procedimientos en playa y shop.</p>
+                            <div class="sub-actions">
+                                <a href="Manual%20de%20Empleado%20SINERCOM.pdf" target="_blank" class="btn-mini">🏪 Empleado Estaciones</a>
+                            </div>
+                        </div>
+                        <div class="sub-section">
+                            <strong>📘 Manual de Procedimientos de RR.HH.</strong>
+                            <p>Marco regulatorio y operativo para la gestión del capital humano.</p>
+                            <div class="sub-actions">
+                                <a href="MANUAL%20DE%20PROCEDIMIENTOS%20DE%20RECURSOS%20HUMANOS.docx" target="_blank" class="btn-mini">📘 Procedimientos RR.HH.</a>
+                                <a href="https://sinercomsantafe-my.sharepoint.com/:w:/g/personal/juan_ramayo_sinercom_ar/IQCdI3R9LOEuTrjKKRNDaq1EAbLYgqZAJZd-0ucGuPz7OSk?e=2KenZ8" target="_blank" class="btn-mini sharepoint">📘 RR.HH.</a>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <button class="btn-toggle" onclick="toggleProcedureList(this)">📋 Ver índice completo</button>
+                                <ol class="procedure-list" id="procedureList">
+                                    <li>Introducción y marco conceptual</li>
+                                    <li>Estructura organizacional de RR.HH.</li>
+                                    <li>Reclutamiento, selección e incorporación</li>
+                                    <li>Descripción y análisis de puestos</li>
+                                    <li>Administración de personal, liquidación y legajos</li>
+                                    <li>Formación, capacitación y desarrollo continuo</li>
+                                    <li>Gestión del desempeño y coaching organizacional</li>
+                                    <li>Relaciones laborales y clima organizacional</li>
+                                    <li>Higiene, seguridad y salud ocupacional</li>
+                                    <li>Desvinculación y egreso laboral</li>
+                                    <li>Control de revisiones y actualización</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="sub-section">
+                            <strong>🛡️ ASSAL</strong>
+                            <p>Documentación de la Agencia Santafesina de Seguridad Alimentaria: normativas, protocolos de higiene y control de calidad.</p>
+                            <div class="sub-actions">
+                                <a href="https://www.santafe.gov.ar/assal/" target="_blank" class="btn-mini">🛡️ ASSAL Oficial</a>
+                                <a href="https://sinercomsantafe-my.sharepoint.com/:f:/g/personal/juan_ramayo_sinercom_ar/Ed5fX8vW3QpFnLkY9tR6uWkB" target="_blank" class="btn-mini sharepoint">🛡️ ASSAL</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-tags">
+                        <span class="tag tag-documento">Documento</span>
+                        <span class="tag tag-sharepoint">SharePoint</span>
+                    </div>
+                </div>
+
+                <!-- 11. Energy Center -->
+                <div class="tool-card" data-search="energy center recursos documentación operativa energía ecenter">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">⚡</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">11</span>
+                            <div class="card-title">Energy Center</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">Centro de recursos y documentación operativa del sector energético.</div>
+                    <div class="card-tags">
+                        <span class="tag tag-herramienta">Herramienta</span>
+                        <span class="tag tag-externo">Externo</span>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://panamericanenergyb2c.b2clogin.com/panamericanenergyb2c.onmicrosoft.com/b2c_1a_signup_signin/oauth2/v2.0/authorize?client_id=64fb8bca-ba7c-4718-8ed1-78fc7a88b531&amp;scope=https%3A%2F%2Fpanamericanenergyb2c.onmicrosoft.com%2F64fb8bca-ba7c-4718-8ed1-78fc7a88b531%2Fuser_impersonation%20https%3A%2F%2Fpanamericanenergyb2c.onmicrosoft.com%2F64fb8bca-ba7c-4718-8ed1-78fc7a88b531%2Fread%20https%3A%2F%2Fpanamericanenergyb2c.onmicrosoft.com%2F64fb8bca-ba7c-4718-8ed1-78fc7a88b531%2Fwrite%20openid%20profile%20offline_access&amp;redirect_uri=https%3A%2F%2Fecenter.axionenergy.com&amp;client-request-id=01a085e9-2f66-7620-ae7a-58e5e7d7e9da&amp;response_mode=fragment&amp;response_type=code&amp;x-client-SKU=msal.js.browser&amp;x-client-VER=3.30.0&amp;client_info=1&amp;code_challenge=oL8161J5-sFbC3iufRznYTmQpBb_Tki8Gw3umo5hdDg&amp;code_challenge_method=S256&amp;nonce=01a085e9-2f67-7c02-90a3-d8f0fb454e34&amp;state=eyJpZCI6IjAxYTA4NWU5LTJmNjctNzhhZi1iZTZkLWQwMWE4NjBhNmZiZiIsIm1ldGEiOnsiaW50ZXJhY3Rpb25UeXBlIjoicmVkaXJlY3QifX0%3D" target="_blank" class="btn-link sharepoint">⚡ Energy Center</a>
+                    </div>
+                </div>
+
+                <!-- 12. ARCA -->
+                <div class="tool-card" data-search="arca agencia recaudación control aduanero trámites gestiones afip">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">🏛️</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">12</span>
+                            <div class="card-title">ARCA</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">Portal de trámites y gestiones ante la Agencia de Recaudación y Control Aduanero (ex AFIP).</div>
+                    <div class="card-tags">
+                        <span class="tag tag-externo">Externo</span>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.arca.gob.ar/" target="_blank" class="btn-link">🌐 Ir a ARCA</a>
+                        <a href="https://sinercomsantafe-my.sharepoint.com/:f:/g/personal/juan_ramayo_sinercom_ar/Es7vQw9LxXpGkRp4YtG6VWgB" target="_blank" class="btn-link sharepoint">🏛️ ARCA</a>
+                    </div>
+                </div>
+
+                <!-- 13. KPIs -->
+                <div class="tool-card" data-search="kpi polivalencia policompetencia indicadores desempeño métricas">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">🎯</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">13</span>
+                            <div class="card-title">KPIs · Polivalencias y Policompetencias</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">Indicadores de desempeño para medir polivalencias y policompetencias del personal.</div>
+                    <div class="card-tags">
+                        <span class="tag tag-documento">Documento</span>
+                        <span class="tag tag-sharepoint">SharePoint</span>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://sinercomsantafe-my.sharepoint.com/:f:/g/personal/juan_ramayo_sinercom_ar/IgAJPd6WKftkTYnvO7bQnIv1AaORRum77oSWcy2qPgz1EfU?e=aDegWf" target="_blank" class="btn-link sharepoint">🎯 KPIs · Polivalencias</a>
+                    </div>
+                </div>
+
+                <!-- 14. SINDICADOS-FEDERACIONES-931 -->
+                <div class="tool-card" data-search="sindicatos federaciones 931 afip relaciones laborales gremios cuota sindical">
+                    <div class="card-header-row">
+                        <div class="card-icon-wrap">⚖️</div>
+                        <div class="card-title-wrap">
+                            <span class="card-number">14</span>
+                            <div class="card-title">SINDICADOS-FEDERACIONES-931</div>
+                        </div>
+                    </div>
+                    <div class="card-desc">Carpeta con información sobre sindicatos, federaciones gremiales y documentación relacionada con el Formulario 931 de AFIP.</div>
+                    <div class="card-tags">
+                        <span class="tag tag-sharepoint">SharePoint</span>
+                        <span class="tag tag-documento">Documento</span>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://sinercomsantosafe-my.sharepoint.com/:f:/g/personal/juan_ramayo_sinercom_ar/IgCkr-ajygxTRKgFp_8t3h6GAWUHSKiwNDuNIR_G53az5h4?e=r2DUt1" target="_blank" class="btn-link sharepoint">⚖️ SINDICADOS-FEDERACIONES-931</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="app-footer">
+        <p>📌 <strong>Centro de Control SINERCOM</strong> · Recursos y herramientas centralizados · Actualizado: <strong>Septiembre 2026</strong></p>
+    </footer>
+
+    <script>
+        function filterCards() {
+            const query = document.getElementById('globalSearch').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.tool-card');
+            let visible = 0;
+
+            cards.forEach(card => {
+                const searchText = card.dataset.search || '';
+                const textContent = card.textContent.toLowerCase();
+                const match = (searchText + ' ' + textContent).includes(query) || query === '';
+                card.style.display = match ? 'inline-flex' : 'none';
+                if (match) visible++;
+            });
+
+            document.getElementById('visibleCount').textContent = visible;
+            document.getElementById('totalCount').textContent = cards.length;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const total = document.querySelectorAll('.tool-card').length;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('visibleCount').textContent = total;
+        });
+
+        function toggleProcedureList(btn) {
+            const list = btn.nextElementSibling;
+            if (list.classList.contains('open')) {
+                list.classList.remove('open');
+                btn.textContent = '📋 Ver índice completo';
+            } else {
+                list.classList.add('open');
+                btn.textContent = '📋 Ocultar índice';
+            }
+        }
+    </script>
+
+</body>
+</html>
